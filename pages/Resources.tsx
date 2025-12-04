@@ -1,13 +1,15 @@
 import React, { useState, useMemo } from 'react';
-import { Search, FileText, Download, Plus, AlertCircle, BookOpen, ClipboardList, Beaker, GraduationCap, FolderOpen, Briefcase } from 'lucide-react';
+import { Search, FileText, Download, FolderOpen, BookOpen, Filter, Layers, GraduationCap, X, ChevronRight, PenTool, FileQuestion } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { UFRS } from '../constants';
 import { CourseResource } from '../types';
 
 export const Resources: React.FC = () => {
-  const { courses, user, incrementDownload } = useApp();
+  const { courses, incrementDownload } = useApp();
 
   const [activeUFR, setActiveUFR] = useState<string>('SATIC');
+  const [activeLevel, setActiveLevel] = useState<string>('L1');
+  const [selectedType, setSelectedType] = useState<'ALL' | 'COURS' | 'TD' | 'TP' | 'EXAMEN'>('ALL');
   const [searchTerm, setSearchTerm] = useState('');
 
   const LEVEL_ORDER = ['L1', 'L2', 'L3', 'M1', 'M2'];
@@ -15,132 +17,282 @@ export const Resources: React.FC = () => {
     'L1': 'Licence 1', 'L2': 'Licence 2', 'L3': 'Licence 3', 'M1': 'Master 1', 'M2': 'Master 2'
   };
 
-  // 1. Filter courses
-  const filteredCourses = useMemo(() => {
-    return courses.filter(course => 
-      course.ufr === activeUFR && (
-        course.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        course.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course.filiere.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    );
-  }, [courses, activeUFR, searchTerm]);
+  // --- LOGIC ---
 
-  // 2. Group by Level -> Filiere -> Subject
-  const resourcesGrouped = useMemo(() => {
+  // 1. Base Filter (UFR + Type + Search)
+  // Note: We filter by Level later depending on view mode (Browse vs Search)
+  const baseFilteredCourses = useMemo(() => {
+    return courses.filter(course => {
+      const matchUFR = course.ufr === activeUFR;
+      const matchType = selectedType === 'ALL' || course.type === selectedType;
+      const searchLower = searchTerm.toLowerCase();
+      const matchSearch = !searchTerm || 
+        course.title.toLowerCase().includes(searchLower) || 
+        course.subject.toLowerCase().includes(searchLower) ||
+        course.filiere.toLowerCase().includes(searchLower);
+      
+      return matchUFR && matchType && matchSearch;
+    });
+  }, [courses, activeUFR, selectedType, searchTerm]);
+
+  // 2. Grouping Logic
+  // Group by Level -> Filiere -> Subject
+  const groupedCourses = useMemo(() => {
     const grouped: Record<string, Record<string, Record<string, CourseResource[]>>> = {};
-    filteredCourses.forEach(course => {
-      const { level, filiere, subject } = course;
-      if (!grouped[level]) grouped[level] = {};
-      if (!grouped[level][filiere]) grouped[level][filiere] = {};
-      if (!grouped[level][filiere][subject]) grouped[level][filiere][subject] = [];
-      grouped[level][filiere][subject].push(course);
+    
+    baseFilteredCourses.forEach(course => {
+      // If browsing (no search), filter by active level. 
+      // If searching, show all levels.
+      if (!searchTerm && course.level !== activeLevel) return;
+
+      const lvl = course.level;
+      if (!grouped[lvl]) grouped[lvl] = {};
+      if (!grouped[lvl][course.filiere]) grouped[lvl][course.filiere] = {};
+      if (!grouped[lvl][course.filiere][course.subject]) grouped[lvl][course.filiere][course.subject] = [];
+      grouped[lvl][course.filiere][course.subject].push(course);
     });
     return grouped;
-  }, [filteredCourses]);
+  }, [baseFilteredCourses, activeLevel, searchTerm]);
 
-  const getTypeColor = (type: string) => {
-    switch (type) {
-        case 'COURS': return 'text-blue-700 bg-blue-50 border-blue-200';
-        case 'TD': return 'text-amber-700 bg-amber-50 border-amber-200';
-        case 'TP': return 'text-purple-700 bg-purple-50 border-purple-200';
-        case 'EXAMEN': return 'text-red-700 bg-red-50 border-red-200';
-        default: return 'text-slate-700 bg-slate-50 border-slate-200';
+  // --- HELPERS ---
+
+  const getUFRColor = (ufrId: string) => {
+    const colors: Record<string, string> = {
+        SATIC: 'text-blue-600 border-blue-600 bg-blue-50',
+        SDD: 'text-green-600 border-green-600 bg-green-50',
+        ECOMIJ: 'text-amber-600 border-amber-600 bg-amber-50'
+    };
+    return colors[ufrId] || 'text-slate-600 border-slate-600 bg-slate-50';
+  };
+
+  const getTypeIcon = (type: string) => {
+      switch(type) {
+          case 'COURS': return <BookOpen size={14} className="text-blue-500"/>;
+          case 'TD': return <PenTool size={14} className="text-amber-500"/>;
+          case 'TP': return <Layers size={14} className="text-purple-500"/>;
+          case 'EXAMEN': return <FileQuestion size={14} className="text-red-500"/>;
+          default: return <FileText size={14} className="text-slate-400"/>;
+      }
+  };
+
+  const getTypeStyle = (type: string) => {
+    switch(type) {
+        case 'COURS': return 'bg-blue-50 text-blue-700 border-blue-100';
+        case 'TD': return 'bg-amber-50 text-amber-700 border-amber-100';
+        case 'TP': return 'bg-purple-50 text-purple-700 border-purple-100';
+        case 'EXAMEN': return 'bg-red-50 text-red-700 border-red-100';
+        default: return 'bg-slate-50 text-slate-700 border-slate-100';
     }
   };
 
-  const getUFRColor = (ufr: string) => UFRS[ufr]?.color.replace('bg-','border-') || 'border-slate-600';
+  const currentUFRData = UFRS[activeUFR];
+
+  // --- RENDER ---
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-slate-50/50 font-sans">
       
-      {/* Header & Tabs */}
-      <div className="bg-white border-b border-slate-200 shadow-sm sticky top-20 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                <div>
-                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-                        <FolderOpen className="text-slate-400" /> Bibliothèque Numérique
-                    </h1>
-                    <p className="text-slate-500 text-sm mt-1">Sélectionnez votre UFR pour accéder aux ressources classées.</p>
+      {/* 1. Header Section (Sticky) */}
+      <div className="bg-white border-b border-slate-200 sticky top-20 z-30 shadow-sm transition-all">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            {/* Top Row: Title & Search */}
+            <div className="py-6 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                    <div className={`p-3 rounded-xl ${currentUFRData.color.replace('bg-', 'bg-opacity-10 text-')}`}>
+                        <FolderOpen size={24} />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Bibliothèque Numérique</h1>
+                        <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Ressources Pédagogiques</p>
+                    </div>
+                </div>
+
+                <div className="w-full md:w-96 relative group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+                    <input 
+                        type="text" 
+                        placeholder={`Rechercher un cours, une matière...`}
+                        className="w-full pl-11 pr-4 py-3 bg-slate-100 border-transparent focus:bg-white border focus:border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-sm font-medium"
+                        value={searchTerm} 
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    {searchTerm && (
+                        <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1">
+                            <X size={14} />
+                        </button>
+                    )}
                 </div>
             </div>
-            <div className="flex space-x-1 overflow-x-auto no-scrollbar">
-                {Object.values(UFRS).map((ufr) => (
-                    <button key={ufr.id} onClick={() => setActiveUFR(ufr.id)}
-                        className={`px-6 py-3 font-bold text-sm md:text-base whitespace-nowrap rounded-t-lg transition-all border-b-4 ${
-                            activeUFR === ufr.id ? `${getUFRColor(ufr.id)} text-slate-900 bg-slate-50` : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-                        }`}
-                    >{ufr.name}</button>
-                ))}
+
+            {/* Middle Row: UFR Tabs */}
+            <div className="flex overflow-x-auto no-scrollbar space-x-6 border-b border-slate-100">
+                {Object.values(UFRS).map((ufr) => {
+                    const isActive = activeUFR === ufr.id;
+                    return (
+                        <button 
+                            key={ufr.id} 
+                            onClick={() => { setActiveUFR(ufr.id); setSearchTerm(''); }}
+                            className={`pb-4 px-2 text-sm font-bold border-b-2 transition-all whitespace-nowrap flex items-center gap-2 ${
+                                isActive 
+                                ? `border-${ufr.color.replace('bg-', '').replace('-600', '-500')} text-slate-900` 
+                                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                            }`}
+                        >
+                           {ufr.name}
+                           {isActive && <span className={`w-1.5 h-1.5 rounded-full ${ufr.color}`}></span>}
+                        </button>
+                    );
+                })}
             </div>
+
+            {/* Bottom Row: Controls (Level & Type) */}
+            {!searchTerm ? (
+                <div className="py-4 flex flex-col md:flex-row justify-between items-center gap-4 animate-fade-in">
+                    {/* Level Selector */}
+                    <div className="flex p-1 bg-slate-100 rounded-lg w-full md:w-auto overflow-x-auto">
+                        {LEVEL_ORDER.map((level) => (
+                            <button
+                                key={level}
+                                onClick={() => setActiveLevel(level)}
+                                className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all whitespace-nowrap flex-1 md:flex-none ${
+                                    activeLevel === level 
+                                    ? 'bg-white text-slate-800 shadow-sm ring-1 ring-black/5' 
+                                    : 'text-slate-500 hover:text-slate-700'
+                                }`}
+                            >
+                                {level}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Type Filter */}
+                    <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
+                        <Filter size={14} className="text-slate-400 mr-1 flex-shrink-0" />
+                        {(['ALL', 'COURS', 'TD', 'TP', 'EXAMEN'] as const).map((type) => (
+                            <button
+                                key={type}
+                                onClick={() => setSelectedType(type)}
+                                className={`px-3 py-1 rounded-full text-xs font-bold border transition-colors whitespace-nowrap ${
+                                    selectedType === type
+                                    ? 'bg-slate-800 text-white border-slate-800'
+                                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                                }`}
+                            >
+                                {type === 'ALL' ? 'Tout' : type}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            ) : (
+                <div className="py-4 text-sm text-slate-500 animate-fade-in flex items-center gap-2">
+                    <Search size={14} />
+                    Résultats de recherche pour <span className="font-bold text-slate-900">"{searchTerm}"</span> dans {activeUFR}
+                </div>
+            )}
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="relative mb-10 max-w-2xl mx-auto">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-            <input type="text" placeholder={`Rechercher dans ${activeUFR}...`}
-                className="w-full pl-12 pr-4 py-3.5 border border-slate-200 rounded-full shadow-sm focus:ring-2 focus:ring-slate-200 focus:border-slate-400 outline-none transition-all text-slate-700 bg-white"
-                value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-            />
-        </div>
+      {/* 2. Content Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-[500px]">
+        
+        {/* Empty State */}
+        {Object.keys(groupedCourses).length === 0 && (
+            <div className="flex flex-col items-center justify-center py-20 text-center animate-fade-in">
+                <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-6">
+                    <FolderOpen size={32} className="text-slate-300" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">Aucune ressource trouvée</h3>
+                <p className="text-slate-500 mt-2 max-w-sm">
+                    {searchTerm 
+                        ? "Essayez d'autres mots-clés ou vérifiez l'orthographe." 
+                        : `Il n'y a pas encore de documents pour le niveau ${activeLevel} de l'${activeUFR}.`}
+                </p>
+                {searchTerm && (
+                    <button onClick={() => setSearchTerm('')} className="mt-6 text-blue-600 font-bold hover:underline">
+                        Effacer la recherche
+                    </button>
+                )}
+            </div>
+        )}
 
-        <div className="space-y-16 animate-fade-in">
+        {/* Results List */}
+        <div className="space-y-10">
+            {/* If searching, iterate all found levels. If browsing, only activeLevel exists in groupedCourses */}
             {LEVEL_ORDER.map(level => {
-                const filieres = resourcesGrouped[level];
-                if (!filieres || Object.keys(filieres).length === 0) return null;
+                const filieres = groupedCourses[level];
+                if (!filieres) return null;
 
                 return (
-                    <div key={level}>
-                        <div className="flex items-center gap-4 mb-6">
-                            <h2 className="text-xl font-bold text-slate-800 bg-slate-200 px-4 py-1 rounded-r-full">{LEVEL_LABELS[level]}</h2>
-                            <div className="h-px bg-slate-200 flex-grow"></div>
-                        </div>
+                    <div key={level} className="animate-fade-in">
+                        {/* Section Level Title (Only show if searching to distinguish results) */}
+                        {searchTerm && (
+                            <div className="flex items-center gap-4 mb-6">
+                                <span className="bg-slate-900 text-white px-3 py-1 rounded-md text-sm font-bold tracking-wide">
+                                    {LEVEL_LABELS[level]}
+                                </span>
+                                <div className="h-px bg-slate-200 flex-grow"></div>
+                            </div>
+                        )}
 
                         <div className="space-y-8">
                             {Object.entries(filieres).map(([filiereName, subjects]) => (
-                                <div key={filiereName} className="pl-4 border-l-4" style={{borderColor: UFRS[activeUFR].color.replace('bg','border').replace('-600', '-500')}}>
-                                    <div className="flex items-center gap-2 mb-4">
-                                        <Briefcase size={18} className="text-slate-500" />
+                                <div key={filiereName}>
+                                    {/* Filiere Header */}
+                                    <div className="flex items-center gap-2 mb-4 ml-1">
+                                        <GraduationCap size={18} className="text-slate-400" />
                                         <h3 className="text-lg font-bold text-slate-700">{filiereName}</h3>
                                     </div>
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pl-4">
+
+                                    {/* Grid of Subjects */}
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                                         {Object.entries(subjects).map(([subjectName, resources]) => (
-                                            <div key={subjectName} className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
-                                                <div className="px-5 py-4 bg-slate-50 border-b border-slate-100">
-                                                    <h3 className="font-bold text-slate-800 text-lg">{subjectName}</h3>
+                                            <div key={subjectName} className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 group overflow-hidden flex flex-col">
+                                                {/* Card Header */}
+                                                <div className="px-5 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                                                    <h4 className="font-bold text-slate-800 text-base line-clamp-1" title={subjectName}>
+                                                        {subjectName}
+                                                    </h4>
+                                                    <span className="text-[10px] font-bold px-2 py-0.5 bg-white border border-slate-200 rounded-full text-slate-500">
+                                                        {resources.length}
+                                                    </span>
                                                 </div>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
-                                                    <div className="p-4">
-                                                        <h4 className="text-xs font-bold text-slate-400 uppercase mb-3 flex items-center gap-1"><BookOpen size={14} /> Cours</h4>
-                                                        {resources.filter(r => r.type === 'COURS').length > 0 ? (
-                                                            <ul className="space-y-2">
-                                                                {resources.filter(r => r.type === 'COURS').map(c => (
-                                                                    <li key={c.id} className="flex items-center justify-between group/item">
-                                                                        <span className="text-sm text-slate-700 truncate" title={c.title}>{c.title}</span>
-                                                                        <button onClick={() => incrementDownload(c.id)} className="text-slate-400 hover:text-blue-600 p-1" title="Télécharger"><Download size={14} /></button>
-                                                                    </li>
-                                                                ))}
-                                                            </ul>
-                                                        ) : <p className="text-xs text-slate-400 italic">Aucun cours.</p>}
-                                                    </div>
-                                                    <div className="p-4 bg-slate-50/50">
-                                                        <h4 className="text-xs font-bold text-slate-400 uppercase mb-3 flex items-center gap-1"><ClipboardList size={14} /> Travaux</h4>
-                                                        {resources.filter(r => r.type !== 'COURS').length > 0 ? (
-                                                            <ul className="space-y-2">
-                                                                {resources.filter(r => r.type !== 'COURS').map(t => (
-                                                                    <li key={t.id} className="flex items-center justify-between group/item">
-                                                                        <div className="flex items-center gap-2 overflow-hidden">
-                                                                            <span className={`text-[10px] font-bold px-1 rounded ${getTypeColor(t.type)}`}>{t.type}</span>
-                                                                            <span className="text-sm text-slate-700 truncate" title={t.title}>{t.title}</span>
-                                                                        </div>
-                                                                        <button onClick={() => incrementDownload(t.id)} className="text-slate-400 hover:text-green-600 p-1" title="Télécharger"><Download size={14} /></button>
-                                                                    </li>
-                                                                ))}
-                                                            </ul>
-                                                        ) : <p className="text-xs text-slate-400 italic">Aucun TD/TP.</p>}
-                                                    </div>
+
+                                                {/* Card Body - List of resources */}
+                                                <div className="p-2 flex-grow">
+                                                    <ul className="space-y-1">
+                                                        {resources.map(res => (
+                                                            <li key={res.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 group/item transition-colors">
+                                                                <div className="flex items-center gap-3 overflow-hidden">
+                                                                    <div className={`p-1.5 rounded-md flex-shrink-0 ${getTypeStyle(res.type)}`}>
+                                                                        {getTypeIcon(res.type)}
+                                                                    </div>
+                                                                    <div className="flex flex-col overflow-hidden">
+                                                                        <span className="text-sm font-medium text-slate-700 truncate group-hover/item:text-blue-700 transition-colors" title={res.title}>
+                                                                            {res.title}
+                                                                        </span>
+                                                                        <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                                                                            {res.dateAdded} • {res.size}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <button 
+                                                                    onClick={() => incrementDownload(res.id)} 
+                                                                    className="text-slate-300 hover:text-green-600 p-2 rounded-full hover:bg-green-50 transition-all opacity-0 group-hover/item:opacity-100 focus:opacity-100"
+                                                                    title="Télécharger"
+                                                                >
+                                                                    <Download size={16} />
+                                                                </button>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+
+                                                {/* Card Footer */}
+                                                <div className="bg-slate-50/50 p-2 border-t border-slate-100 text-center">
+                                                    <button className="text-xs font-bold text-slate-400 hover:text-blue-600 transition-colors flex items-center justify-center w-full gap-1 py-1">
+                                                        Tout voir <ChevronRight size={12} />
+                                                    </button>
                                                 </div>
                                             </div>
                                         ))}
@@ -151,16 +303,9 @@ export const Resources: React.FC = () => {
                     </div>
                 );
             })}
-
-            {filteredCourses.length === 0 && (
-                 <div className="text-center py-20 bg-white rounded-xl border border-dashed border-slate-300">
-                    <AlertCircle className="text-slate-400 mx-auto" size={32} />
-                    <h3 className="text-lg font-bold text-slate-900 mt-4">Aucune ressource trouvée</h3>
-                    <p className="text-slate-500 max-w-md mx-auto mt-2">Aucun document ne correspond à vos filtres. Essayez d'élargir votre recherche.</p>
-                </div>
-            )}
         </div>
       </div>
+
     </div>
   );
 };
