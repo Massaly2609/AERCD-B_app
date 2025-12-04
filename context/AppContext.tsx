@@ -4,10 +4,11 @@ import { MOCK_COURSES, UFRS, AMICALE_INFO } from '../constants';
 
 interface AppContextType {
   user: User | null;
-  login: (role: Role) => void;
+  login: (email: string, password: string) => boolean;
   logout: () => void;
   courses: CourseResource[];
-  addCourse: (course: CourseResource) => void;
+  addCourse: (course: Omit<CourseResource, 'id' | 'dateAdded' | 'downloads' | 'size' | 'author'>) => void;
+  updateCourse: (updatedCourse: CourseResource) => void;
   deleteCourse: (id: string) => void;
   incrementDownload: (id: string) => void;
   siteContent: SiteContent;
@@ -20,7 +21,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [user, setUser] = useState<User | null>(null);
   const [courses, setCourses] = useState<CourseResource[]>(MOCK_COURSES);
   
-  // State for editable content (CMS simulation)
   const [siteContent, setSiteContent] = useState<SiteContent>({
     homeWelcome: "La plateforme officielle pour les étudiants de l'UADB ressortissants de Diembering.",
     amicaleMission: AMICALE_INFO.mission,
@@ -32,22 +32,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   });
 
-  // Load from local storage on mount (persistence simulation)
   useEffect(() => {
     const storedUser = localStorage.getItem('aercd_user');
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
-  const login = (role: Role) => {
-    const mockUser: User = {
-      id: 'u1',
-      name: role === 'admin' ? 'Administrateur' : 'Étudiant Bambey',
-      email: role === 'admin' ? 'admin@uadb.edu.sn' : 'student@uadb.edu.sn',
-      role: role,
-      ufr: 'SATIC'
-    };
-    setUser(mockUser);
-    localStorage.setItem('aercd_user', JSON.stringify(mockUser));
+  const login = (email: string, password: string): boolean => {
+    if (email === 'aercd-badmin@gmail.com' && password === 'aercd-b2025') {
+      const adminUser: User = {
+        id: 'admin01',
+        name: 'Administrateur',
+        email: 'aercd-badmin@gmail.com',
+        role: 'admin',
+      };
+      setUser(adminUser);
+      localStorage.setItem('aercd_user', JSON.stringify(adminUser));
+      return true;
+    }
+    // Add student login logic here if needed
+    return false;
   };
 
   const logout = () => {
@@ -55,8 +58,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     localStorage.removeItem('aercd_user');
   };
 
-  const addCourse = (course: CourseResource) => {
-    setCourses(prev => [course, ...prev]);
+  const addCourse = (courseData: Omit<CourseResource, 'id' | 'dateAdded' | 'downloads' | 'size' | 'author'>) => {
+    const newCourse: CourseResource = {
+      ...courseData,
+      id: Math.random().toString(36).substr(2, 9),
+      author: user?.name || 'Admin', 
+      dateAdded: new Date().toISOString().split('T')[0],
+      downloads: 0,
+      size: `${(Math.random() * 5 + 0.5).toFixed(1)} MB`,
+    };
+    setCourses(prev => [newCourse, ...prev]);
+  };
+
+  const updateCourse = (updatedCourse: CourseResource) => {
+    setCourses(prev => prev.map(c => c.id === updatedCourse.id ? updatedCourse : c));
   };
 
   const deleteCourse = (id: string) => {
@@ -76,7 +91,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   return (
     <AppContext.Provider value={{ 
       user, login, logout, 
-      courses, addCourse, deleteCourse, incrementDownload,
+      courses, addCourse, updateCourse, deleteCourse, incrementDownload,
       siteContent, updateSiteContent
     }}>
       {children}

@@ -13,11 +13,12 @@ export type ResourceType = 'COURS' | 'TD' | 'TP' | 'EXAMEN';
 export interface CourseResource {
   id: string;
   title: string;
+  description?: string;
   type: ResourceType;
   ufr: string; // e.g., 'SATIC'
-  department: string; // e.g., 'TIC'
   level: string; // e.g., 'L1', 'M2'
-  subject: string;
+  filiere: string; // e.g., 'Licence SID'
+  subject: string; // Matière, e.g., 'Algèbre'
   author: string;
   dateAdded: string;
   downloads: number;
