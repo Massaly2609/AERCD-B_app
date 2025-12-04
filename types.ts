@@ -35,6 +35,13 @@ export interface Program {
   name: string;
   level: 'Licence' | 'Master';
   description: string;
+  departmentCode?: string; // Link program to department
+}
+
+export interface DirectorsWord {
+  author: string;
+  content: string;
+  role: string;
 }
 
 export interface UFRData {
@@ -42,6 +49,9 @@ export interface UFRData {
   name: string;
   fullName: string;
   description: string;
+  context?: string; // Long text for introduction/context
+  directorsWord?: DirectorsWord;
+  staff?: string[];
   departments: Department[];
   programs: Program[];
   color: string;
