@@ -43,23 +43,23 @@ Choisir l’UFR SATIC, c’est bénéficier d’un enseignement de haut niveau e
       { name: 'Master SID', level: 'Master', departmentCode: 'MATH', description: 'Statistique et Informatiques Décisionnelle' },
       
       // PHYS
-      { name: 'Licence Physique Numérique', level: 'Licence', departmentCode: 'PHYS', description: '' },
-      { name: 'Licence Physique-Chimie (PC)', level: 'Licence', departmentCode: 'PHYS', description: '' },
+      { name: 'Licence Physique Numérique', level: 'Licence', departmentCode: 'PHYS', description: 'Modélisation et simulation numérique' },
+      { name: 'Licence Physique-Chimie (PC)', level: 'Licence', departmentCode: 'PHYS', description: 'Sciences physiques fondamentales' },
       { name: 'Master MIER', level: 'Master', departmentCode: 'PHYS', description: 'Master Interuniversitaire en Energies Renouvelables' },
-      { name: 'Master Physique Médicale', level: 'Master', departmentCode: 'PHYS', description: '' },
+      { name: 'Master Physique Médicale', level: 'Master', departmentCode: 'PHYS', description: 'Imagerie et radiothérapie' },
 
       // CHIM
       { name: 'Licence Chimie Appliquée (CA)', level: 'Licence', departmentCode: 'CHIM', description: 'Processus de fabrication et activités de laboratoire.' },
-      { name: 'Master Chimie Inorganique', level: 'Master', departmentCode: 'CHIM', description: '' },
-      { name: 'Master Chimie Organique', level: 'Master', departmentCode: 'CHIM', description: '' },
-      { name: 'Master Chimie Physique', level: 'Master', departmentCode: 'CHIM', description: '' },
+      { name: 'Master Chimie Inorganique', level: 'Master', departmentCode: 'CHIM', description: 'Matériaux et catalyse' },
+      { name: 'Master Chimie Organique', level: 'Master', departmentCode: 'CHIM', description: 'Synthèse et pharmacochimie' },
+      { name: 'Master Chimie Physique', level: 'Master', departmentCode: 'CHIM', description: 'Thermodynamique et cinétique' },
 
       // TIC
-      { name: 'Licence AMRT', level: 'Licence', departmentCode: 'TIC', description: 'Administration et Maintenance des Réseaux Téléinformatiques' },
-      { name: 'Licence D2AW', level: 'Licence', departmentCode: 'TIC', description: 'Développement et Administration des Applications Web' },
+      { name: 'Licence SRT', level: 'Licence', departmentCode: 'TIC', description: 'Systèmes Réseaux et Télécommunications' },
+      { name: 'Licence D2A', level: 'Licence', departmentCode: 'TIC', description: 'Développement et Administration d\'Applications' },
       { name: 'Licence LPCM', level: 'Licence', departmentCode: 'TIC', description: 'Licence Professionnelle en Création Multimédia' },
-      { name: 'Master Systèmes d\'Information', level: 'Master', departmentCode: 'TIC', description: '' },
-      { name: 'Master Systèmes et Réseaux', level: 'Master', departmentCode: 'TIC', description: '' },
+      { name: 'Master Systèmes d\'Information', level: 'Master', departmentCode: 'TIC', description: 'Gouvernance et audit SI' },
+      { name: 'Master Systèmes et Réseaux', level: 'Master', departmentCode: 'TIC', description: 'Infrastructures et sécurité' },
       { name: 'Master DSGL', level: 'Master', departmentCode: 'TIC', description: 'Data sciences et Génie logiciel' },
     ],
     staff: [
@@ -212,7 +212,7 @@ export const MOCK_COURSES: CourseResource[] = [
     type: 'EXAMEN',
     ufr: 'SATIC',
     level: 'L2',
-    filiere: 'Licence D2AW',
+    filiere: 'Licence D2A',
     subject: 'Programmation',
     author: 'M. Diallo',
     dateAdded: '2024-02-15',

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { Menu, X, User, LogOut, ChevronDown, Home, GraduationCap, BookOpen, Users, LayoutDashboard, Phone, Mail, MapPin } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { UFRS } from '../constants';
+
+const { Link, useLocation, useNavigate } = ReactRouterDOM;
 
 // Logo vectoriel personnalisé AERCD-B
 const LogoAERCD = ({ className }: { className?: string }) => (

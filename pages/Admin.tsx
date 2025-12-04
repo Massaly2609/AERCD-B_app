@@ -1,10 +1,13 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { Trash2, Edit, Plus, X, Save, UploadCloud, FileText, ChevronDown, Filter, PieChart, BarChart2, Download, Star, LayoutDashboard } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import * as Recharts from 'recharts';
 import { CourseResource, UFRData } from '../types';
 import { UFRS } from '../constants';
+
+const { Navigate } = ReactRouterDOM;
+const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } = Recharts;
 
 const LEVEL_ORDER = ['L1', 'L2', 'L3', 'M1', 'M2'];
 

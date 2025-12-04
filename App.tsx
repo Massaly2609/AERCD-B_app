@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
@@ -9,6 +9,8 @@ import { Admin } from './pages/Admin';
 import { Amicale } from './pages/Amicale';
 import { Login } from './pages/Login';
 import { AIChat } from './components/AIChat';
+
+const { HashRouter: Router, Routes, Route } = ReactRouterDOM;
 
 function App() {
   return (

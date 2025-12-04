@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { GraduationCap, LogIn, AlertTriangle } from 'lucide-react';
+
+const { useNavigate } = ReactRouterDOM;
 
 export const Login: React.FC = () => {
   const { login } = useApp();
