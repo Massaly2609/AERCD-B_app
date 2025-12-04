@@ -1,3 +1,4 @@
+
 import { UFRData, CourseResource } from './types';
 import { BookOpen, Stethoscope, Scale } from 'lucide-react';
 
@@ -77,19 +78,58 @@ Choisir l’UFR SATIC, c’est bénéficier d’un enseignement de haut niveau e
     name: 'UFR SDD',
     fullName: 'Santé et Développement Durable',
     description: 'Au cœur des enjeux de santé publique et de l\'environnement.',
+    context: `Au Sénégal et dans la sous-région, l’Université de Bambey est la seule à développer une formation de niveau Licence ou Master professionnel en Santé Communautaire. L’UFR est animée par une équipe pluridisciplinaire constituée de médecins, de sociologues, de spécialistes de la communication, de pharmaciens, d’informaticiens, dans une dynamique interdisciplinaire. La filière est le socle de l’UFR Santé et Développement Durable (SDD).
+
+Les étudiants de Santé Communautaire reçoivent une formation de base en sciences fondamentales et biomédicales, mais aussi en sciences humaines, sociales et environnementales, en soins infirmiers. Ils apprennent alors à connaître les pathologies les plus fréquentes dans les communautés de base : santé de la reproduction, santé mère-enfant, maladies transmissibles et non transmissibles, hygiène, assainissement, alimentation, nutrition, etc.
+
+Les 2ème et 3ème année sont utilisées par les enseignants pour installer en eux un ensemble de compétences dans les domaines variées du diagnostic et de la participation communautaire, des stratégies d’intervention, de la planification et du management des structures, programmes et projets de santé, de la pharmacie communautaire et de toutes les techniques de communication leur permettant de faire basculer les communautés ciblées vers la prise en charge de leur bien-être.
+
+Dès sa création, l’Institution a affiché sa volonté et l’ambition de former des étudiants éduqués aux valeurs universitaires et citoyennes authentiques, engagés à servir le pays. C’est la raison pour laquelle l’offre de formation s’est voulue de qualité et utile à la société.
+
+A cette étape de son évolution, les résultats enregistrés présagent de bonnes perspectives, car aujourd’hui, l’on peut se réjouir que les étudiants, encore en formation, aient pu réaliser plusieurs actions d’intérêt général.`,
+    directorsWord: {
+        author: "Dr Abdoulaye FAYE",
+        role: "Directeur de l'UFR SDD",
+        content: `L’Unité de Formation et de Recherche Santé et Développement Durable (UFR SDD), dont le contenu de la formation est destiné aux bacheliers toutes séries confondues, vient répondre à un besoin du système éducatif sénégalais.
+
+L’UFR/SDD, pour le moment, est composée de trois départements : Santé communautaire (niveau Licence et Master), développement durable (niveau Licence) et Médecine. Les enseignements se déroulent sur deux sites : Bambey et Diourbel.
+
+L’objectif de la formation en santé communautaire est de mettre sur le marché du travail des professionnels capables, par une démarche participative, d’identifier un problème de santé prioritaire dans une communauté, d’y apporter des solutions idoines et d’évaluer les interventions réalisées.
+
+Ainsi les formations déroulées au sien de l’UFR SDD sont toutes professionnalisantes et sont en adéquation avec la politique de l’Etat de faire de l’enseignement supérieur et de la recherche un levier du développement socio-économique et culturel de notre pays.
+
+En somme l’UFR SDD est originale et innovante puisqu’elle place le bien être de l’homme au cœur de ses préoccupations actuelles et futures.`
+    },
     color: 'bg-green-600',
     iconName: 'Leaf',
     departments: [
-      { name: 'Santé Communautaire', code: 'SANTE', description: '' },
-      { name: 'Développement Durable', code: 'DD', description: '' },
-      { name: 'Médecine', code: 'MED', description: '' },
+      { name: 'Santé Communautaire', code: 'SANTE', description: 'Diagnostic et interventions communautaires.' },
+      { name: 'Développement Durable', code: 'DD', description: 'Enjeux économiques, sociaux et environnementaux.' },
+      { name: 'Médecine', code: 'MED', description: 'Formation de médecins pour la région de Diourbel et au-delà.' },
     ],
     programs: [
-      { name: 'Licence Santé', level: 'Licence', description: '' },
-      { name: 'Licence Environnement', level: 'Licence', description: '' },
-      { name: 'Licence Nutrition', level: 'Licence', description: '' },
-      { name: 'Master Promotion Santé', level: 'Master', description: '' },
-      { name: 'Master Agriculture', level: 'Master', description: '' },
+      // SANTE
+      { name: 'Licence Santé Communautaire', level: 'Licence', departmentCode: 'SANTE', description: 'Formation de base en sciences biomédicales et sociales.' },
+      { name: 'Master Nutrition', level: 'Master', departmentCode: 'SANTE', description: 'Spécialisation en nutrition.' },
+      { name: 'Master Promotion de la Santé', level: 'Master', departmentCode: 'SANTE', description: 'Stratégies de promotion de la santé.' },
+      { name: 'Master Suivi-évaluation', level: 'Master', departmentCode: 'SANTE', description: 'Évaluation de projets de santé.' },
+      { name: 'Master Santé Communautaire', level: 'Master', departmentCode: 'SANTE', description: 'Approfondissement en santé publique.' },
+
+      // DD
+      { name: 'Licence Agriculture et Développement Durable', level: 'Licence', departmentCode: 'DD', description: 'Agriculture durable.' },
+      { name: 'Licence Environnement', level: 'Licence', departmentCode: 'DD', description: 'Gestion de l\'environnement.' },
+      { name: 'Licence RSE / Santé', level: 'Licence', departmentCode: 'DD', description: 'Responsabilité Sociétale des Entreprises.' },
+
+      // MED
+      { name: 'Doctorat en Médecine', level: 'Licence', departmentCode: 'MED', description: 'Formation de médecins généralistes.' },
+    ],
+    staff: [
+        "Dr Abdoulaye FAYE",
+        "Dr Papa Gallo SOW",
+        "Dr Fatou Ndiaye Oumar SY",
+        "Dr Anta AGNE-DJIGO",
+        "Dr Coura KANE",
+        "Dr Aladji Madior Diop"
     ]
   },
   ECOMIJ: {
@@ -97,18 +137,57 @@ Choisir l’UFR SATIC, c’est bénéficier d’un enseignement de haut niveau e
     name: 'UFR ECOMIJ',
     fullName: 'Économie, Management et Ingénierie Juridique',
     description: 'Former les cadres de demain en gestion et droit.',
+    context: `L’UFR est tournée essentiellement vers l’entreprise et le développement. Elle est animée par des enseignants-chercheurs (économistes, gestionnaires, mathématiciens et juristes) et fait appel à des professionnels de l’Informatique, de la Communication, de l’agro-business, du management de la qualité, de la fiscalité, etc.
+    
+    La formation est axée sur les outils de gestion, les techniques quantitatives, l’analyse économique, l’environnement juridique entre autres. En 2010 l’UFR a formé 31 diplômés répartis en 2 licences (Management de projets et Management des organisations). Pour l’année 2011, deux licences professionnelles sont offertes (Analyse économique et Finance Comptabilité) et un Master en Finance Comptabilité.
+    
+    L’UFR offre des formations essentiellement professionnelles dans les domaines de l’économie, de la gestion et du droit. Les stages et les mémoires sont des points forts de la formation. Les séjours en entreprises dans les administrations publiques ou les ONG, mais aussi la rencontre de divers professionnels et spécialistes aident nos diplômés à s’insérer plus facilement dans le marché de l’emploi.`,
+    directorsWord: {
+        author: "Serigne Ahmadou GAYE",
+        role: "Directeur de l’UFR Ecomij",
+        content: `Depuis son ouverture en 2009, l’UFR Ecomij s’est orientée résolument vers la formation adaptée aux besoins socioéconomiques et à l’innovation, devenue aujourd’hui, une exigence de l’Etat dans les politiques publiques.
+        
+        C’est une institution avec un système culturel, une symbolique et un imaginaire qui modulent les comportements des acteurs qui la composent dans la quête d’un idéal reposant sur l’excellence et la vertu. C’est dans ce sillage, qu’elle offre des formations diversifiées et centrées sur des secteurs porteurs dans ses trois départements de Management, d’Economie et d’Ingénierie juridique.
+        
+        La singularité de nos enseignements est marquée par la dimension pratique qui donne à l’étudiant des aptitudes certaines en vue de la facilitation de son insertion dans le tissu professionnel. A côté de ces missions d’enseignement et de formation, l’UFR veille à la qualité et à l’innovation.
+        
+        L’UFR Ecomij dispose en outre, des équipes de recherches dynamiques dont les missions principales sont la stimulation de la recherche à travers des thématiques intéressantes, l’encadrement des doctorants et des jeunes chercheurs et l’animation scientifique.`
+    },
     color: 'bg-amber-600',
     iconName: 'Scale',
     departments: [
-      { name: 'Économie', code: 'ECO', description: '' },
-      { name: 'Management', code: 'MGMT', description: '' },
-      { name: 'Ingénierie Juridique', code: 'DROIT', description: '' },
+      { name: 'Économie', code: 'ECO', description: 'Analyse économique, gestion de projets, finance.' },
+      { name: 'Management', code: 'MGMT', description: 'Organisations publiques, privées et audit.' },
+      { name: 'Ingénierie Juridique', code: 'DROIT', description: 'Droit privé, public, cyber-sécurité et foncier.' },
     ],
     programs: [
-      { name: 'Licence CCA', level: 'Licence', description: 'Comptabilité Contrôle Audit' },
-      { name: 'Licence Finance', level: 'Licence', description: '' },
-      { name: 'Master Droit Public', level: 'Master', description: '' },
-      { name: 'Master Fiscalité', level: 'Master', description: '' },
+      // ECO
+      { name: 'Licence Economie Appliquée', level: 'Licence', departmentCode: 'ECO', description: 'Analyse et prévisions économiques.' },
+      { name: 'Licence Finance Comptabilité', level: 'Licence', departmentCode: 'ECO', description: 'Gestion financière et comptable.' },
+      { name: 'Master Economie et Gouvernance des Territoires', level: 'Master', departmentCode: 'ECO', description: 'Développement local.' },
+      { name: 'Master Economie du Développement', level: 'Master', departmentCode: 'ECO', description: 'Politiques de développement.' },
+      { name: 'Master Monnaie Banque Finance', level: 'Master', departmentCode: 'ECO', description: 'Secteur bancaire et financier.' },
+      
+      // MGMT
+      { name: 'Licence Management Responsable des Organisations', level: 'Licence', departmentCode: 'MGMT', description: 'Gestion d\'organisations diverses.' },
+      { name: 'Master Finance d’Entreprise et Ingénierie Financière', level: 'Master', departmentCode: 'MGMT', description: 'FEIF' },
+      { name: 'Master Comptabilité Contrôle Audit', level: 'Master', departmentCode: 'MGMT', description: 'CCA' },
+      { name: 'Master Management des Organisations Territoriales', level: 'Master', departmentCode: 'MGMT', description: 'MOT' },
+
+      // DROIT
+      { name: 'Licence Administration Publique', level: 'Licence', departmentCode: 'DROIT', description: 'Cadres des institutions publiques.' },
+      { name: 'Licence Juriste d’Affaires', level: 'Licence', departmentCode: 'DROIT', description: 'Juristes d\'entreprises et banques.' },
+      { name: 'Licence Commerce Electronique et Cyber-sécurité', level: 'Licence', departmentCode: 'DROIT', description: 'Droit du numérique.' },
+      { name: 'Licence Management Juridique Environnemental et Foncier', level: 'Licence', departmentCode: 'DROIT', description: 'Environnement et foncier.' },
+      { name: 'Master Droit des Administrations Publiques, du Foncier et de l’Environnement', level: 'Master', departmentCode: 'DROIT', description: 'DAPFE' },
+      { name: 'Master Droit des Affaires, Fiscal et Cyber-droit', level: 'Master', departmentCode: 'DROIT', description: 'DAFCD' },
+      { name: 'Master Fiscalité', level: 'Master', departmentCode: 'DROIT', description: 'Expertise fiscale.' },
+    ],
+    staff: [
+        "Dr Angélique NGAHA BAH",
+        "Dr Joseph Gniaka KAMA",
+        "Dr Madické Mbodj NDIAYE",
+        "Dr Omar SENE"
     ]
   }
 };
