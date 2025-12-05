@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { LogIn, AlertCircle, Eye, EyeOff, ArrowLeft, ShieldCheck, Lock, Mail } from 'lucide-react';
+import { LogIn, AlertCircle, Eye, EyeOff, ArrowLeft, ShieldCheck, Lock, Mail, Fingerprint, ChevronRight } from 'lucide-react';
 
 const { Link, useNavigate } = ReactRouterDOM;
 
@@ -35,135 +35,155 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-white font-sans">
+    <div className="min-h-screen flex items-center justify-center bg-slate-100 font-sans relative overflow-hidden p-4">
       
-      {/* SECTION GAUCHE - VISUEL IMMERSIF (Caché sur mobile) */}
-      <div className="hidden lg:flex w-1/2 bg-slate-900 relative items-center justify-center overflow-hidden">
-         {/* Fond animé abstrait */}
-         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-         <div className="absolute -top-24 -left-24 w-96 h-96 bg-green-600/20 rounded-full blur-[100px]"></div>
-         <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px]"></div>
-         
-         <div className="relative z-10 p-12 text-white max-w-lg">
-             <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 mb-8 shadow-xl">
-                 <ShieldCheck size={32} className="text-green-400" />
-             </div>
-             <h1 className="text-5xl font-bold mb-6 leading-tight">Portail <br/><span className="text-green-400">Administration</span></h1>
-             <p className="text-slate-300 text-lg leading-relaxed mb-8">
-                 Gérez les ressources pédagogiques, communiquez avec les étudiants et administrez la plateforme de l'AERCD-B en toute sécurité.
-             </p>
-             <div className="flex items-center gap-4 text-sm text-slate-400 font-medium">
-                 <div className="flex items-center gap-2">
-                     <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                     Système Sécurisé
-                 </div>
-                 <div className="w-1 h-1 rounded-full bg-slate-600"></div>
-                 <div>Version 2.0</div>
-             </div>
-         </div>
+      {/* BACKGROUND ELEMENTS */}
+      <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" 
+            alt="University Background" 
+            className="w-full h-full object-cover opacity-20 filter blur-sm"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 to-slate-800/80 mix-blend-multiply"></div>
       </div>
 
-      {/* SECTION DROITE - FORMULAIRE */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 lg:p-16 relative">
+      {/* FLOATING CARD */}
+      <div className="relative z-10 w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row animate-fade-in-up">
          
-         {/* Bouton Retour */}
-         <Link to="/" className="absolute top-8 left-8 flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors text-sm font-bold">
-             <ArrowLeft size={16} /> Retour au site
-         </Link>
-
-         <div className="max-w-md w-full space-y-8 animate-fade-in-up">
-             <div className="text-center lg:text-left">
-                 <h2 className="text-3xl font-extrabold text-slate-900">Connexion</h2>
-                 <p className="text-slate-500 mt-2">Entrez vos identifiants pour accéder au tableau de bord.</p>
-             </div>
-
-             {/* Message d'erreur */}
-             {error && (
-                <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-md flex items-start gap-3 text-sm animate-shake">
-                    <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
-                    <div>
-                        <span className="font-bold block">Erreur de connexion</span>
-                        {error}
-                    </div>
-                </div>
-             )}
-
-             <form onSubmit={handleLogin} className="space-y-6">
-                 
-                 {/* Email Input */}
-                 <div className="space-y-1.5">
-                     <label className="block text-sm font-bold text-slate-700">Adresse Email</label>
-                     <div className="relative group">
-                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                             <Mail size={18} className="text-slate-400 group-focus-within:text-green-600 transition-colors" />
-                         </div>
-                         <input
-                             type="email"
-                             value={email}
-                             onChange={(e) => setEmail(e.target.value)}
-                             required
-                             className="block w-full pl-10 pr-3 py-3 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all shadow-sm"
-                             placeholder="admin@aercd-b.sn"
-                         />
-                     </div>
-                 </div>
-
-                 {/* Password Input */}
-                 <div className="space-y-1.5">
-                     <label className="block text-sm font-bold text-slate-700">Mot de passe</label>
-                     <div className="relative group">
-                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                             <Lock size={18} className="text-slate-400 group-focus-within:text-green-600 transition-colors" />
-                         </div>
-                         <input
-                             type={showPassword ? "text" : "password"}
-                             value={password}
-                             onChange={(e) => setPassword(e.target.value)}
-                             required
-                             className="block w-full pl-10 pr-10 py-3 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all shadow-sm"
-                             placeholder="••••••••"
-                         />
-                         <button
-                             type="button"
-                             onClick={() => setShowPassword(!showPassword)}
-                             className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
-                         >
-                             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                         </button>
-                     </div>
-                     <div className="flex justify-end">
-                         <a href="#" className="text-xs font-bold text-green-600 hover:text-green-700 hover:underline">Mot de passe oublié ?</a>
-                     </div>
-                 </div>
-
-                 <button
-                     type="submit"
-                     disabled={loading}
-                     className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-lg shadow-lg text-sm font-bold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-0.5"
-                 >
-                     {loading ? (
-                         <div className="flex items-center gap-2">
-                             <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                             </svg>
-                             Connexion en cours...
-                         </div>
-                     ) : (
-                         <div className="flex items-center gap-2">
-                             <LogIn size={18} /> Accéder au Dashboard
-                         </div>
-                     )}
-                 </button>
-             </form>
+         {/* LEFT SIDE: BRANDING (40%) */}
+         <div className="w-full md:w-5/12 bg-slate-900 relative p-10 flex flex-col justify-between text-white overflow-hidden">
+             {/* Abstract Decor */}
+             <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>
+             <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/20 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2"></div>
              
-             <div className="text-center mt-6">
-                 <p className="text-xs text-slate-400">
-                     En vous connectant, vous acceptez les conditions d'utilisation de la plateforme AERCD-B.
+             <div className="relative z-10">
+                 <Link to="/" className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest mb-8">
+                     <ArrowLeft size={14} /> Retour au site
+                 </Link>
+                 <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/10 mb-6 shadow-inner">
+                     <ShieldCheck size={28} className="text-green-400" />
+                 </div>
+                 <h1 className="text-3xl font-extrabold mb-2 leading-tight">Espace <br/>Administration</h1>
+                 <p className="text-slate-400 text-sm leading-relaxed">
+                     Bienvenue sur le portail de gestion sécurisé de l'AERCD-B. Accédez aux outils de pilotage de l'amicale.
                  </p>
              </div>
+
+             <div className="relative z-10 mt-12 md:mt-0">
+                 <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+                     <div className="flex items-center gap-3 mb-2">
+                         <div className="p-1.5 bg-green-500/20 rounded text-green-400">
+                             <Fingerprint size={16} />
+                         </div>
+                         <span className="text-xs font-bold uppercase tracking-wide text-slate-300">Accès Sécurisé</span>
+                     </div>
+                     <p className="text-[10px] text-slate-500">
+                         Toute tentative d'accès non autorisé est enregistrée. Votre adresse IP est surveillée.
+                     </p>
+                 </div>
+             </div>
+         </div>
+
+         {/* RIGHT SIDE: FORM (60%) */}
+         <div className="w-full md:w-7/12 bg-white p-8 md:p-12 lg:p-16 flex flex-col justify-center">
+             
+             <div className="max-w-sm mx-auto w-full">
+                 <div className="text-center mb-10">
+                     <h2 className="text-2xl font-bold text-slate-900">Connexion</h2>
+                     <p className="text-slate-500 text-sm mt-2">Veuillez saisir vos identifiants administrateur.</p>
+                 </div>
+
+                 {error && (
+                    <div className="bg-red-50 border border-red-100 text-red-600 p-3 rounded-lg flex items-start gap-3 text-sm mb-6 animate-shake shadow-sm">
+                        <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
+                        <span className="font-medium">{error}</span>
+                    </div>
+                 )}
+
+                 <form onSubmit={handleLogin} className="space-y-5">
+                     
+                     {/* Email Field */}
+                     <div className="space-y-1.5">
+                         <label className="block text-xs font-bold text-slate-500 uppercase ml-1">Email</label>
+                         <div className="relative group">
+                             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                 <Mail size={18} className="text-slate-400 group-focus-within:text-green-600 transition-colors" />
+                             </div>
+                             <input
+                                 type="email"
+                                 value={email}
+                                 onChange={(e) => setEmail(e.target.value)}
+                                 required
+                                 className="block w-full pl-10 pr-3 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                                 placeholder="admin@aercd-b.sn"
+                             />
+                         </div>
+                     </div>
+
+                     {/* Password Field */}
+                     <div className="space-y-1.5">
+                         <div className="flex justify-between ml-1">
+                            <label className="block text-xs font-bold text-slate-500 uppercase">Mot de passe</label>
+                         </div>
+                         <div className="relative group">
+                             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                 <Lock size={18} className="text-slate-400 group-focus-within:text-green-600 transition-colors" />
+                             </div>
+                             <input
+                                 type={showPassword ? "text" : "password"}
+                                 value={password}
+                                 onChange={(e) => setPassword(e.target.value)}
+                                 required
+                                 className="block w-full pl-10 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                                 placeholder="••••••••"
+                             />
+                             <button
+                                 type="button"
+                                 onClick={() => setShowPassword(!showPassword)}
+                                 className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
+                             >
+                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                             </button>
+                         </div>
+                         <div className="flex justify-end pt-1">
+                             <a href="#" className="text-xs font-bold text-green-600 hover:text-green-700 hover:underline">Mot de passe oublié ?</a>
+                         </div>
+                     </div>
+
+                     {/* Submit Button */}
+                     <button
+                         type="submit"
+                         disabled={loading}
+                         className="w-full flex justify-center items-center gap-2 py-3.5 px-4 mt-4 border border-transparent rounded-xl shadow-lg shadow-green-500/20 text-sm font-bold text-white bg-green-600 hover:bg-green-700 hover:shadow-green-500/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-0.5"
+                     >
+                         {loading ? (
+                             <>
+                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                 <span>Connexion...</span>
+                             </>
+                         ) : (
+                             <>
+                                 <span>Se connecter</span>
+                                 <ChevronRight size={18} />
+                             </>
+                         )}
+                     </button>
+                 </form>
+
+                 <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+                     <p className="text-xs text-slate-400">
+                         Problème d'accès ? Contactez le support technique.
+                     </p>
+                 </div>
+             </div>
          </div>
       </div>
+      
+      {/* Footer simple */}
+      <div className="absolute bottom-6 text-center w-full z-10">
+          <p className="text-xs text-slate-400 font-medium">© {new Date().getFullYear()} AERCD-B Admin Portal. Tous droits réservés.</p>
+      </div>
+
     </div>
   );
 };
