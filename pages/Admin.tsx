@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { Trash2, Edit, Plus, X, Save, UploadCloud, FileText, ChevronDown, Filter, PieChart, BarChart2, Download, Star, LayoutDashboard, Megaphone, Bell } from 'lucide-react';
+import { Trash2, Edit, Plus, X, Save, UploadCloud, FileText, ChevronDown, Filter, PieChart, BarChart2, Download, Star, LayoutDashboard, Megaphone, Bell, Link as LinkIcon } from 'lucide-react';
 import * as Recharts from 'recharts';
 import { CourseResource, UFRData, AppNotification } from '../types';
 import { UFRS } from '../constants';
@@ -140,18 +140,32 @@ const CourseFormModal: React.FC<{
     );
 };
 
-// Notification Form Component (Simple)
+// Notification Form Component (Updated with File Upload)
 const NotificationForm: React.FC = () => {
     const { addNotification } = useApp();
     const [label, setLabel] = useState('');
     const [text, setText] = useState('');
     const [type, setType] = useState<'URGENT' | 'INFO' | 'EVENT' | 'APPEL'>('INFO');
+    const [file, setFile] = useState<File | null>(null);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        addNotification({ label, text, type });
+        
+        // Simuler un URL pour le fichier s'il existe
+        let documentUrl: string | undefined = undefined;
+        if (file) {
+            documentUrl = URL.createObjectURL(file);
+        }
+
+        addNotification({ label, text, type, documentUrl });
+        
+        // Reset form
         setLabel('');
         setText('');
+        setFile(null);
+        // Reset file input value manually since uncontrolled
+        const fileInput = document.getElementById('notif-file') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
     };
 
     return (
@@ -159,8 +173,8 @@ const NotificationForm: React.FC = () => {
             <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
                 <Plus size={18} className="text-green-600" /> Nouvelle Notification
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                <div className="md:col-span-1">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                <div className="md:col-span-2">
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Type</label>
                     <select value={type} onChange={(e) => setType(e.target.value as any)} className="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
                         <option value="INFO">Info</option>
@@ -169,17 +183,36 @@ const NotificationForm: React.FC = () => {
                         <option value="APPEL">Appel à...</option>
                     </select>
                 </div>
-                <div className="md:col-span-1">
+                <div className="md:col-span-3">
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Titre (Badge)</label>
                     <input value={label} onChange={(e) => setLabel(e.target.value)} required placeholder="Ex: Bourses" className="w-full border border-slate-300 rounded-lg p-2.5 text-sm" />
                 </div>
-                <div className="md:col-span-2 flex gap-2">
-                     <div className="flex-grow">
-                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Message</label>
-                        <input value={text} onChange={(e) => setText(e.target.value)} required placeholder="Le texte qui défile..." className="w-full border border-slate-300 rounded-lg p-2.5 text-sm" />
-                     </div>
-                     <button type="submit" className="bg-green-600 text-white px-4 py-2.5 rounded-lg font-bold hover:bg-green-700 self-end">
-                         Ajouter
+                <div className="md:col-span-4">
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Message</label>
+                    <input value={text} onChange={(e) => setText(e.target.value)} required placeholder="Le texte qui défile..." className="w-full border border-slate-300 rounded-lg p-2.5 text-sm" />
+                </div>
+                <div className="md:col-span-2">
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">PDF (Optionnel)</label>
+                    <div className="relative">
+                        <input 
+                            id="notif-file"
+                            type="file" 
+                            accept="application/pdf"
+                            onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
+                            className="hidden"
+                        />
+                        <label htmlFor="notif-file" className="cursor-pointer flex items-center gap-2 w-full border border-slate-300 bg-white rounded-lg p-2.5 text-sm text-slate-500 hover:bg-slate-50 truncate">
+                            {file ? (
+                                <span className="text-green-600 font-bold truncate">{file.name}</span>
+                            ) : (
+                                <><UploadCloud size={16} /> <span>Joindre PDF</span></>
+                            )}
+                        </label>
+                    </div>
+                </div>
+                <div className="md:col-span-1">
+                     <button type="submit" className="w-full bg-green-600 text-white p-2.5 rounded-lg font-bold hover:bg-green-700 flex items-center justify-center">
+                         <Plus size={20} />
                      </button>
                 </div>
             </div>
@@ -407,7 +440,7 @@ export const Admin: React.FC = () => {
                     <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm animate-fade-in">
                         <div className="mb-6">
                             <h2 className="text-xl font-bold text-slate-800">Gestion des Communications (Flash Info)</h2>
-                            <p className="text-sm text-slate-500 mt-1">Les messages ajoutés ici défileront sur la barre supérieure du site.</p>
+                            <p className="text-sm text-slate-500 mt-1">Les messages ajoutés ici défileront sur la barre supérieure du site. Vous pouvez joindre un PDF pour plus de détails.</p>
                         </div>
                         
                         <NotificationForm />
@@ -427,7 +460,14 @@ export const Admin: React.FC = () => {
                                                     {notif.type}
                                                 </span>
                                                 <div>
-                                                    <p className="font-bold text-slate-800 text-sm">{notif.label}</p>
+                                                    <p className="font-bold text-slate-800 text-sm flex items-center gap-2">
+                                                        {notif.label}
+                                                        {notif.documentUrl && (
+                                                            <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200 flex items-center gap-1">
+                                                                <LinkIcon size={10} /> PDF
+                                                            </span>
+                                                        )}
+                                                    </p>
                                                     <p className="text-sm text-slate-500">{notif.text}</p>
                                                 </div>
                                             </div>

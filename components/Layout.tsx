@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
-import { Menu, X, User, LogOut, ChevronDown, Home, GraduationCap, BookOpen, Users, LayoutDashboard, Phone, Mail, MapPin, Bell, ChevronLeft, ChevronRight, Info, Calendar, Megaphone } from 'lucide-react';
+import { Menu, X, User, LogOut, ChevronDown, Home, GraduationCap, BookOpen, Users, LayoutDashboard, Phone, Mail, MapPin, Bell, ChevronLeft, ChevronRight, Info, Calendar, Megaphone, Download } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { UFRS } from '../constants';
 
@@ -57,9 +57,25 @@ const NotificationBar = () => {
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-sm ${getTypeColor(currentNotif.type)}`}>
                             {currentNotif.label}
                         </span>
-                        <span className="truncate text-slate-300 font-medium">
-                            {currentNotif.text}
-                        </span>
+                        
+                        {currentNotif.documentUrl ? (
+                            <a 
+                                href={currentNotif.documentUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="truncate text-slate-300 font-medium hover:text-white hover:underline flex items-center gap-2 cursor-pointer transition-colors"
+                                title="Cliquez pour télécharger ou voir le document joint"
+                            >
+                                {currentNotif.text}
+                                <span className="inline-flex items-center gap-1 bg-white/10 px-1.5 py-0.5 rounded text-[10px] text-amber-300">
+                                    <Download size={10} /> PDF
+                                </span>
+                            </a>
+                        ) : (
+                            <span className="truncate text-slate-300 font-medium">
+                                {currentNotif.text}
+                            </span>
+                        )}
                     </div>
                 </div>
 

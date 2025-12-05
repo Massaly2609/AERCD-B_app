@@ -73,4 +73,5 @@ export interface AppNotification {
   text: string;
   active: boolean;
   dateAdded: string;
+  documentUrl?: string; // URL du fichier PDF joint (optionnel)
 }
