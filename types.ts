@@ -21,9 +21,10 @@ export interface CourseResource {
   filiere: string; // e.g., 'Licence SID'
   subject: string; // Matière, e.g., 'Algèbre'
   author: string;
-  dateAdded: string;
+  dateAdded: string; // Mapped from created_at
   downloads: number;
   size: string;
+  fileUrl?: string; // URL Supabase Storage
 }
 
 export interface Department {

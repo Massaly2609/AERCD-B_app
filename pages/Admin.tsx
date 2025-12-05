@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { Trash2, Edit, Plus, X, Save, UploadCloud, FileText, ChevronDown, Filter, PieChart, BarChart2, Download, Star, LayoutDashboard, Megaphone, Bell, Link as LinkIcon } from 'lucide-react';
+import { Trash2, Edit, Plus, X, Save, UploadCloud, FileText, ChevronDown, Filter, PieChart, BarChart2, Download, Star, LayoutDashboard, Megaphone, Bell, Link as LinkIcon, Loader2 } from 'lucide-react';
 import * as Recharts from 'recharts';
 import { CourseResource, UFRData, AppNotification } from '../types';
 import { UFRS } from '../constants';
@@ -19,7 +19,7 @@ const CourseFormModal: React.FC<{
     courseToEdit: CourseResource | null;
 }> = ({ isOpen, onClose, courseToEdit }) => {
     const { addCourse, updateCourse } = useApp();
-    const [formData, setFormData] = useState<Omit<CourseResource, 'id' | 'dateAdded' | 'downloads' | 'size' | 'author'>>({
+    const [formData, setFormData] = useState<Omit<CourseResource, 'id' | 'dateAdded' | 'downloads' | 'size' | 'author' | 'fileUrl'>>({
         title: '',
         description: '',
         type: 'COURS',
@@ -29,16 +29,19 @@ const CourseFormModal: React.FC<{
         subject: ''
     });
     const [availableFilieres, setAvailableFilieres] = useState<string[]>([]);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         if (courseToEdit) {
-            const { id, dateAdded, downloads, size, author, ...editableData } = courseToEdit;
+            const { id, dateAdded, downloads, size, author, fileUrl, ...editableData } = courseToEdit;
             setFormData(editableData);
+            setSelectedFile(null); // Reset file on edit mode open
         } else {
-            // Reset form for new entry
             setFormData({
                 title: '', description: '', type: 'COURS', ufr: 'SATIC', level: 'L1', filiere: '', subject: ''
             });
+            setSelectedFile(null);
         }
     }, [courseToEdit, isOpen]);
     
@@ -60,14 +63,29 @@ const CourseFormModal: React.FC<{
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (courseToEdit) {
-            updateCourse({ ...courseToEdit, ...formData });
-        } else {
-            addCourse(formData);
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setSelectedFile(e.target.files[0]);
         }
-        onClose();
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        try {
+            if (courseToEdit) {
+                // Pour l'édition, on ne gère pas encore le remplacement de fichier dans ce prototype simple,
+                // mais on met à jour les métadonnées
+                await updateCourse({ ...courseToEdit, ...formData });
+            } else {
+                await addCourse(formData, selectedFile);
+            }
+            onClose();
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (!isOpen) return null;
@@ -88,7 +106,7 @@ const CourseFormModal: React.FC<{
                     </div>
                      <div>
                         <label className="block text-sm font-bold text-slate-700 mb-1.5">Description (optionnel)</label>
-                        <textarea name="description" value={formData.description} onChange={handleChange} rows={2} className="w-full border border-slate-300 rounded-lg p-2.5" />
+                        <textarea name="description" value={formData.description || ''} onChange={handleChange} rows={2} className="w-full border border-slate-300 rounded-lg p-2.5" />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -123,16 +141,34 @@ const CourseFormModal: React.FC<{
                             <option value="COURS">Cours (CM)</option><option value="TD">Travaux Dirigés (TD)</option><option value="TP">Travaux Pratiques (TP)</option><option value="EXAMEN">Examen</option>
                         </select>
                     </div>
-                     <div>
-                        <label className="block text-sm font-bold text-slate-700 mb-1.5">Fichier</label>
-                        <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:bg-slate-50 transition-colors cursor-pointer">
-                            <UploadCloud className="mx-auto text-slate-400 mb-2" />
-                            <span className="text-sm text-slate-600 font-medium">Glissez & déposez ou cliquez pour choisir</span>
+                    
+                    {!courseToEdit && (
+                         <div>
+                            <label className="block text-sm font-bold text-slate-700 mb-1.5">Fichier</label>
+                            <div className="relative">
+                                <input 
+                                    type="file" 
+                                    id="course-file" 
+                                    onChange={handleFileChange}
+                                    className="hidden" 
+                                    required
+                                />
+                                <label htmlFor="course-file" className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:bg-slate-50 transition-colors cursor-pointer block">
+                                    <UploadCloud className="mx-auto text-slate-400 mb-2" />
+                                    <span className="text-sm text-slate-600 font-medium">
+                                        {selectedFile ? selectedFile.name : "Cliquez pour choisir un fichier (PDF, Word, PPT...)"}
+                                    </span>
+                                </label>
+                            </div>
                         </div>
-                    </div>
+                    )}
+
                     <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 mt-6">
-                        <button type="button" onClick={onClose} className="px-5 py-2.5 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold">Annuler</button>
-                        <button type="submit" className="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold shadow-md flex items-center gap-2"><Save size={16} /> Enregistrer</button>
+                        <button type="button" onClick={onClose} disabled={isSubmitting} className="px-5 py-2.5 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold">Annuler</button>
+                        <button type="submit" disabled={isSubmitting} className="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold shadow-md flex items-center gap-2">
+                            {isSubmitting ? <Loader2 className="animate-spin" size={16}/> : <Save size={16} />} 
+                            {isSubmitting ? 'Enregistrement...' : 'Enregistrer'}
+                        </button>
                     </div>
                 </form>
             </div>
@@ -140,32 +176,29 @@ const CourseFormModal: React.FC<{
     );
 };
 
-// Notification Form Component (Updated with File Upload)
+// Notification Form Component
 const NotificationForm: React.FC = () => {
     const { addNotification } = useApp();
     const [label, setLabel] = useState('');
     const [text, setText] = useState('');
     const [type, setType] = useState<'URGENT' | 'INFO' | 'EVENT' | 'APPEL'>('INFO');
     const [file, setFile] = useState<File | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        // Simuler un URL pour le fichier s'il existe
-        let documentUrl: string | undefined = undefined;
-        if (file) {
-            documentUrl = URL.createObjectURL(file);
+        setIsSubmitting(true);
+        try {
+            await addNotification({ label, text, type }, file);
+            // Reset form
+            setLabel('');
+            setText('');
+            setFile(null);
+            const fileInput = document.getElementById('notif-file') as HTMLInputElement;
+            if (fileInput) fileInput.value = '';
+        } finally {
+            setIsSubmitting(false);
         }
-
-        addNotification({ label, text, type, documentUrl });
-        
-        // Reset form
-        setLabel('');
-        setText('');
-        setFile(null);
-        // Reset file input value manually since uncontrolled
-        const fileInput = document.getElementById('notif-file') as HTMLInputElement;
-        if (fileInput) fileInput.value = '';
     };
 
     return (
@@ -211,8 +244,8 @@ const NotificationForm: React.FC = () => {
                     </div>
                 </div>
                 <div className="md:col-span-1">
-                     <button type="submit" className="w-full bg-green-600 text-white p-2.5 rounded-lg font-bold hover:bg-green-700 flex items-center justify-center">
-                         <Plus size={20} />
+                     <button type="submit" disabled={isSubmitting} className="w-full bg-green-600 text-white p-2.5 rounded-lg font-bold hover:bg-green-700 flex items-center justify-center disabled:opacity-50">
+                         {isSubmitting ? <Loader2 className="animate-spin" size={20}/> : <Plus size={20} />}
                      </button>
                 </div>
             </div>
@@ -220,8 +253,7 @@ const NotificationForm: React.FC = () => {
     );
 }
 
-
-// Stat Card Component
+// ... StatCard remains same ...
 const StatCard: React.FC<{ icon: React.ReactNode, title: string, value: string | number, detail: string, color: string }> = ({ icon, title, value, detail, color }) => (
     <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-start gap-4">
         <div className={`p-3 rounded-lg ${color}`}>
@@ -257,6 +289,18 @@ export const Admin: React.FC = () => {
         setIsModalOpen(true);
     };
 
+    const handleDeleteCourse = async (id: string, fileUrl?: string) => {
+        if (confirm("Êtes-vous sûr de vouloir supprimer ce document ?")) {
+            await deleteCourse(id, fileUrl);
+        }
+    };
+    
+    const handleDeleteNotif = async (id: string, docUrl?: string) => {
+        if (confirm("Supprimer cette notification ?")) {
+            await deleteNotification(id, docUrl);
+        }
+    };
+
     const filteredCourses = useMemo(() => {
         if (filterUFR === 'all') return courses;
         return courses.filter(c => c.ufr === filterUFR);
@@ -280,8 +324,6 @@ export const Admin: React.FC = () => {
         return stats;
     }, [courses]);
 
-    // FIX: Explicitly cast the result of Object.entries to fix a type inference issue.
-    // This resolves errors where properties on sorted items were not found because their type was inferred as 'unknown'.
     const mostActiveUFR = Object.keys(ufrStats).length > 0 ? (Object.entries(ufrStats) as [string, { docs: number; downloads: number }][]).sort((a, b) => b[1].docs - a[1].docs)[0] : null;
     const mostPopularDoc = courses.length > 0 ? [...courses].sort((a, b) => b.downloads - a.downloads)[0] : null;
 
@@ -397,6 +439,11 @@ export const Admin: React.FC = () => {
                                             <td className="px-4 py-3">
                                                 <p className="font-bold text-slate-800">{course.title}</p>
                                                 <p className="text-xs text-slate-500">{course.subject}</p>
+                                                {course.fileUrl && (
+                                                    <a href={course.fileUrl} target="_blank" rel="noreferrer" className="text-[10px] text-blue-500 hover:underline flex items-center gap-1 mt-1">
+                                                        <LinkIcon size={10} /> Voir fichier
+                                                    </a>
+                                                )}
                                             </td>
                                             <td className="px-4 py-3">
                                                 <p className="font-bold text-slate-800">{course.ufr}</p>
@@ -415,7 +462,7 @@ export const Admin: React.FC = () => {
                                                     <button onClick={() => handleEdit(course)} className="text-slate-500 hover:text-blue-600 p-2 rounded-md hover:bg-blue-50" title="Modifier">
                                                         <Edit size={16} />
                                                     </button>
-                                                    <button onClick={() => deleteCourse(course.id)} className="text-slate-500 hover:text-red-600 p-2 rounded-md hover:bg-red-50" title="Supprimer">
+                                                    <button onClick={() => handleDeleteCourse(course.id, course.fileUrl)} className="text-slate-500 hover:text-red-600 p-2 rounded-md hover:bg-red-50" title="Supprimer">
                                                         <Trash2 size={16} />
                                                     </button>
                                                 </div>
@@ -425,13 +472,6 @@ export const Admin: React.FC = () => {
                                 </tbody>
                             </table>
                         </div>
-                         {filteredCourses.length === 0 && (
-                            <div className="text-center py-10">
-                                <FileText size={40} className="mx-auto text-slate-300 mb-4"/>
-                                <p className="font-bold text-slate-700">Aucun document trouvé</p>
-                                <p className="text-sm text-slate-500">Essayez de changer le filtre ou d'ajouter un nouveau document.</p>
-                            </div>
-                        )}
                     </div>
                 )}
 
@@ -440,7 +480,7 @@ export const Admin: React.FC = () => {
                     <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm animate-fade-in">
                         <div className="mb-6">
                             <h2 className="text-xl font-bold text-slate-800">Gestion des Communications (Flash Info)</h2>
-                            <p className="text-sm text-slate-500 mt-1">Les messages ajoutés ici défileront sur la barre supérieure du site. Vous pouvez joindre un PDF pour plus de détails.</p>
+                            <p className="text-sm text-slate-500 mt-1">Les messages ajoutés ici défileront sur la barre supérieure du site.</p>
                         </div>
                         
                         <NotificationForm />
@@ -463,16 +503,16 @@ export const Admin: React.FC = () => {
                                                     <p className="font-bold text-slate-800 text-sm flex items-center gap-2">
                                                         {notif.label}
                                                         {notif.documentUrl && (
-                                                            <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200 flex items-center gap-1">
+                                                            <a href={notif.documentUrl} target="_blank" rel="noreferrer" className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200 flex items-center gap-1 hover:text-blue-600">
                                                                 <LinkIcon size={10} /> PDF
-                                                            </span>
+                                                            </a>
                                                         )}
                                                     </p>
                                                     <p className="text-sm text-slate-500">{notif.text}</p>
                                                 </div>
                                             </div>
                                             <button 
-                                                onClick={() => deleteNotification(notif.id)}
+                                                onClick={() => handleDeleteNotif(notif.id, notif.documentUrl)}
                                                 className="text-slate-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-full transition-colors"
                                                 title="Supprimer"
                                             >

@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Search, FileText, Download, FolderOpen, BookOpen, Filter, Layers, GraduationCap, X, ChevronRight, PenTool, FileQuestion } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -5,7 +6,7 @@ import { UFRS } from '../constants';
 import { CourseResource } from '../types';
 
 export const Resources: React.FC = () => {
-  const { courses, incrementDownload } = useApp();
+  const { courses, incrementDownload, loading } = useApp(); // Used loading state if available
 
   const [activeUFR, setActiveUFR] = useState<string>('SATIC');
   const [activeLevel, setActiveLevel] = useState<string>('L1');
@@ -20,7 +21,6 @@ export const Resources: React.FC = () => {
   // --- LOGIC ---
 
   // 1. Base Filter (UFR + Type + Search)
-  // Note: We filter by Level later depending on view mode (Browse vs Search)
   const baseFilteredCourses = useMemo(() => {
     return courses.filter(course => {
       const matchUFR = course.ufr === activeUFR;
@@ -36,13 +36,10 @@ export const Resources: React.FC = () => {
   }, [courses, activeUFR, selectedType, searchTerm]);
 
   // 2. Grouping Logic
-  // Group by Level -> Filiere -> Subject
   const groupedCourses = useMemo(() => {
     const grouped: Record<string, Record<string, Record<string, CourseResource[]>>> = {};
     
     baseFilteredCourses.forEach(course => {
-      // If browsing (no search), filter by active level. 
-      // If searching, show all levels.
       if (!searchTerm && course.level !== activeLevel) return;
 
       const lvl = course.level;
@@ -55,15 +52,6 @@ export const Resources: React.FC = () => {
   }, [baseFilteredCourses, activeLevel, searchTerm]);
 
   // --- HELPERS ---
-
-  const getUFRColor = (ufrId: string) => {
-    const colors: Record<string, string> = {
-        SATIC: 'text-blue-600 border-blue-600 bg-blue-50',
-        SDD: 'text-green-600 border-green-600 bg-green-50',
-        ECOMIJ: 'text-amber-600 border-amber-600 bg-amber-50'
-    };
-    return colors[ufrId] || 'text-slate-600 border-slate-600 bg-slate-50';
-  };
 
   const getTypeIcon = (type: string) => {
       switch(type) {
@@ -86,6 +74,15 @@ export const Resources: React.FC = () => {
   };
 
   const currentUFRData = UFRS[activeUFR];
+
+  const handleDownload = (resource: CourseResource) => {
+      incrementDownload(resource.id);
+      if (resource.fileUrl) {
+          window.open(resource.fileUrl, '_blank');
+      } else {
+          alert("Fichier non disponible pour le moment.");
+      }
+  };
 
   // --- RENDER ---
 
@@ -196,8 +193,13 @@ export const Resources: React.FC = () => {
       {/* 2. Content Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-[500px]">
         
-        {/* Empty State */}
-        {Object.keys(groupedCourses).length === 0 && (
+        {loading && (
+             <div className="flex justify-center py-20">
+                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+             </div>
+        )}
+
+        {!loading && Object.keys(groupedCourses).length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 text-center animate-fade-in">
                 <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-6">
                     <FolderOpen size={32} className="text-slate-300" />
@@ -217,15 +219,14 @@ export const Resources: React.FC = () => {
         )}
 
         {/* Results List */}
+        {!loading && (
         <div className="space-y-10">
-            {/* If searching, iterate all found levels. If browsing, only activeLevel exists in groupedCourses */}
             {LEVEL_ORDER.map(level => {
                 const filieres = groupedCourses[level];
                 if (!filieres) return null;
 
                 return (
                     <div key={level} className="animate-fade-in">
-                        {/* Section Level Title (Only show if searching to distinguish results) */}
                         {searchTerm && (
                             <div className="flex items-center gap-4 mb-6">
                                 <span className="bg-slate-900 text-white px-3 py-1 rounded-md text-sm font-bold tracking-wide">
@@ -277,7 +278,7 @@ export const Resources: React.FC = () => {
                                                                     </div>
                                                                 </div>
                                                                 <button 
-                                                                    onClick={() => incrementDownload(res.id)} 
+                                                                    onClick={() => handleDownload(res)} 
                                                                     className="text-slate-300 hover:text-green-600 p-2 rounded-full hover:bg-green-50 transition-all opacity-0 group-hover/item:opacity-100 focus:opacity-100"
                                                                     title="Télécharger"
                                                                 >
@@ -304,6 +305,7 @@ export const Resources: React.FC = () => {
                 );
             })}
         </div>
+        )}
       </div>
 
     </div>
