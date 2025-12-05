@@ -1,9 +1,10 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { Trash2, Edit, Plus, X, Save, UploadCloud, FileText, ChevronDown, Filter, PieChart, BarChart2, Download, Star, LayoutDashboard } from 'lucide-react';
+import { Trash2, Edit, Plus, X, Save, UploadCloud, FileText, ChevronDown, Filter, PieChart, BarChart2, Download, Star, LayoutDashboard, Megaphone, Bell } from 'lucide-react';
 import * as Recharts from 'recharts';
-import { CourseResource, UFRData } from '../types';
+import { CourseResource, UFRData, AppNotification } from '../types';
 import { UFRS } from '../constants';
 
 const { Navigate } = ReactRouterDOM;
@@ -139,6 +140,54 @@ const CourseFormModal: React.FC<{
     );
 };
 
+// Notification Form Component (Simple)
+const NotificationForm: React.FC = () => {
+    const { addNotification } = useApp();
+    const [label, setLabel] = useState('');
+    const [text, setText] = useState('');
+    const [type, setType] = useState<'URGENT' | 'INFO' | 'EVENT' | 'APPEL'>('INFO');
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        addNotification({ label, text, type });
+        setLabel('');
+        setText('');
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-8">
+            <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <Plus size={18} className="text-green-600" /> Nouvelle Notification
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div className="md:col-span-1">
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Type</label>
+                    <select value={type} onChange={(e) => setType(e.target.value as any)} className="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+                        <option value="INFO">Info</option>
+                        <option value="URGENT">Urgent</option>
+                        <option value="EVENT">Événement</option>
+                        <option value="APPEL">Appel à...</option>
+                    </select>
+                </div>
+                <div className="md:col-span-1">
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Titre (Badge)</label>
+                    <input value={label} onChange={(e) => setLabel(e.target.value)} required placeholder="Ex: Bourses" className="w-full border border-slate-300 rounded-lg p-2.5 text-sm" />
+                </div>
+                <div className="md:col-span-2 flex gap-2">
+                     <div className="flex-grow">
+                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Message</label>
+                        <input value={text} onChange={(e) => setText(e.target.value)} required placeholder="Le texte qui défile..." className="w-full border border-slate-300 rounded-lg p-2.5 text-sm" />
+                     </div>
+                     <button type="submit" className="bg-green-600 text-white px-4 py-2.5 rounded-lg font-bold hover:bg-green-700 self-end">
+                         Ajouter
+                     </button>
+                </div>
+            </div>
+        </form>
+    );
+}
+
+
 // Stat Card Component
 const StatCard: React.FC<{ icon: React.ReactNode, title: string, value: string | number, detail: string, color: string }> = ({ icon, title, value, detail, color }) => (
     <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-start gap-4">
@@ -155,11 +204,11 @@ const StatCard: React.FC<{ icon: React.ReactNode, title: string, value: string |
 
 
 export const Admin: React.FC = () => {
-    const { user, courses, deleteCourse } = useApp();
+    const { user, courses, deleteCourse, notifications, deleteNotification } = useApp();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCourse, setEditingCourse] = useState<CourseResource | null>(null);
     const [filterUFR, setFilterUFR] = useState('all');
-    const [activeTab, setActiveTab] = useState<'dashboard' | 'content'>('dashboard');
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'content' | 'comms'>('dashboard');
 
     if (!user || user.role !== 'admin') {
         return <Navigate to="/login" />;
@@ -218,12 +267,15 @@ export const Admin: React.FC = () => {
                 <h1 className="text-3xl font-bold text-slate-900">Tableau de Bord</h1>
 
                 {/* Tabs */}
-                <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-2 flex gap-2">
-                    <button onClick={() => setActiveTab('dashboard')} className={`flex-1 px-4 py-2 text-sm font-bold rounded-md flex items-center justify-center gap-2 transition-colors ${activeTab === 'dashboard' ? 'bg-green-600 text-white shadow' : 'text-slate-600 hover:bg-slate-200'}`}>
+                <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-2 flex gap-2 overflow-x-auto">
+                    <button onClick={() => setActiveTab('dashboard')} className={`flex-1 px-4 py-2 text-sm font-bold rounded-md flex items-center justify-center gap-2 transition-colors whitespace-nowrap ${activeTab === 'dashboard' ? 'bg-green-600 text-white shadow' : 'text-slate-600 hover:bg-slate-200'}`}>
                         <LayoutDashboard size={16} /> Dashboard
                     </button>
-                    <button onClick={() => setActiveTab('content')} className={`flex-1 px-4 py-2 text-sm font-bold rounded-md flex items-center justify-center gap-2 transition-colors ${activeTab === 'content' ? 'bg-green-600 text-white shadow' : 'text-slate-600 hover:bg-slate-200'}`}>
+                    <button onClick={() => setActiveTab('content')} className={`flex-1 px-4 py-2 text-sm font-bold rounded-md flex items-center justify-center gap-2 transition-colors whitespace-nowrap ${activeTab === 'content' ? 'bg-green-600 text-white shadow' : 'text-slate-600 hover:bg-slate-200'}`}>
                         <BarChart2 size={16} /> Gestion des Documents
+                    </button>
+                    <button onClick={() => setActiveTab('comms')} className={`flex-1 px-4 py-2 text-sm font-bold rounded-md flex items-center justify-center gap-2 transition-colors whitespace-nowrap ${activeTab === 'comms' ? 'bg-green-600 text-white shadow' : 'text-slate-600 hover:bg-slate-200'}`}>
+                        <Megaphone size={16} /> Communications
                     </button>
                 </div>
 
@@ -347,6 +399,54 @@ export const Admin: React.FC = () => {
                                 <p className="text-sm text-slate-500">Essayez de changer le filtre ou d'ajouter un nouveau document.</p>
                             </div>
                         )}
+                    </div>
+                )}
+
+                {/* Notifications Management View */}
+                {activeTab === 'comms' && (
+                    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm animate-fade-in">
+                        <div className="mb-6">
+                            <h2 className="text-xl font-bold text-slate-800">Gestion des Communications (Flash Info)</h2>
+                            <p className="text-sm text-slate-500 mt-1">Les messages ajoutés ici défileront sur la barre supérieure du site.</p>
+                        </div>
+                        
+                        <NotificationForm />
+
+                        <div className="space-y-4">
+                            <h3 className="font-bold text-slate-700 border-b border-slate-100 pb-2">Messages Actifs</h3>
+                            {notifications.length > 0 ? (
+                                <div className="grid gap-3">
+                                    {notifications.map(notif => (
+                                        <div key={notif.id} className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                                            <div className="flex items-center gap-4">
+                                                <span className={`text-[10px] font-bold px-2 py-1 rounded-sm uppercase ${
+                                                    notif.type === 'URGENT' ? 'bg-red-100 text-red-700' : 
+                                                    notif.type === 'INFO' ? 'bg-blue-100 text-blue-700' : 
+                                                    notif.type === 'EVENT' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'
+                                                }`}>
+                                                    {notif.type}
+                                                </span>
+                                                <div>
+                                                    <p className="font-bold text-slate-800 text-sm">{notif.label}</p>
+                                                    <p className="text-sm text-slate-500">{notif.text}</p>
+                                                </div>
+                                            </div>
+                                            <button 
+                                                onClick={() => deleteNotification(notif.id)}
+                                                className="text-slate-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-full transition-colors"
+                                                title="Supprimer"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-8 text-slate-400 italic">
+                                    Aucune communication active.
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>

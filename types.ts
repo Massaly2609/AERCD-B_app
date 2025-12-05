@@ -1,3 +1,4 @@
+
 export type Role = 'admin' | 'student' | 'guest';
 
 export interface User {
@@ -63,4 +64,13 @@ export interface SiteContent {
   amicaleMission: string;
   amicaleVision: string;
   ufrDescriptions: Record<string, string>;
+}
+
+export interface AppNotification {
+  id: string;
+  type: 'URGENT' | 'INFO' | 'EVENT' | 'APPEL';
+  label: string;
+  text: string;
+  active: boolean;
+  dateAdded: string;
 }

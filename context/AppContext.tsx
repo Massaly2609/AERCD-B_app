@@ -1,5 +1,6 @@
+
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { User, CourseResource, Role, SiteContent } from '../types';
+import { User, CourseResource, Role, SiteContent, AppNotification } from '../types';
 import { MOCK_COURSES, UFRS, AMICALE_INFO } from '../constants';
 
 interface AppContextType {
@@ -13,13 +14,25 @@ interface AppContextType {
   incrementDownload: (id: string) => void;
   siteContent: SiteContent;
   updateSiteContent: (content: Partial<SiteContent>) => void;
+  notifications: AppNotification[];
+  addNotification: (notification: Omit<AppNotification, 'id' | 'dateAdded' | 'active'>) => void;
+  deleteNotification: (id: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+// Données initiales pour les notifications
+const INITIAL_NOTIFICATIONS: AppNotification[] = [
+    { id: '1', type: 'URGENT', label: 'Bourses', text: 'Dernier délai pour le dépôt des dossiers de bourses sociales : 15 Mars 2025.', active: true, dateAdded: '2025-01-01' },
+    { id: '2', type: 'INFO', label: 'Inscriptions', text: 'Ouverture des inscriptions pédagogiques pour le second semestre.', active: true, dateAdded: '2025-01-02' },
+    { id: '3', type: 'EVENT', label: 'Soutenance', text: 'Soutenances de Master UFR ECOMIJ prévues du 20 au 25 Avril.', active: true, dateAdded: '2025-01-03' },
+    { id: '4', type: 'APPEL', label: 'Candidature', text: 'Appel à candidature pour le Master Interuniversitaire en Énergies Renouvelables.', active: true, dateAdded: '2025-01-04' },
+];
+
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [courses, setCourses] = useState<CourseResource[]>(MOCK_COURSES);
+  const [notifications, setNotifications] = useState<AppNotification[]>(INITIAL_NOTIFICATIONS);
   
   const [siteContent, setSiteContent] = useState<SiteContent>({
     homeWelcome: "La plateforme officielle pour les étudiants de l'UADB ressortissants de Diembering.",
@@ -88,11 +101,27 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setSiteContent(prev => ({ ...prev, ...content }));
   };
 
+  // Gestion des Notifications
+  const addNotification = (notifData: Omit<AppNotification, 'id' | 'dateAdded' | 'active'>) => {
+    const newNotif: AppNotification = {
+      ...notifData,
+      id: Math.random().toString(36).substr(2, 9),
+      dateAdded: new Date().toISOString().split('T')[0],
+      active: true
+    };
+    setNotifications(prev => [newNotif, ...prev]);
+  };
+
+  const deleteNotification = (id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
   return (
     <AppContext.Provider value={{ 
       user, login, logout, 
       courses, addCourse, updateCourse, deleteCourse, incrementDownload,
-      siteContent, updateSiteContent
+      siteContent, updateSiteContent,
+      notifications, addNotification, deleteNotification
     }}>
       {children}
     </AppContext.Provider>
