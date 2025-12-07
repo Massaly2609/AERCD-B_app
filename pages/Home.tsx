@@ -1,7 +1,7 @@
 
 import React from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
-import { ArrowRight, Book, Users, Star, Download, Zap, Activity, Leaf, ChevronRight, Globe, Layers, Award, Sparkles, MousePointer2, ChevronDown, Cpu, Calculator, Atom, FlaskConical, Microscope } from 'lucide-react';
+import { ArrowRight, Book, Users, Star, Download, Zap, Activity, Leaf, ChevronRight, Globe, Layers, Award, Sparkles, MousePointer2, ChevronDown, Cpu, Calculator, Atom, FlaskConical, Microscope, CheckCircle2, Calendar, FileCheck, HelpCircle } from 'lucide-react';
 
 const { Link } = ReactRouterDOM;
 
@@ -21,26 +21,26 @@ export const Home: React.FC = () => {
             className="w-full h-full object-cover scale-105 animate-pulse-slow"
           />
           {/* Sophisticated Gradient Overlay - Optimized for readability and elegance on the new image */}
-          <div className="absolute inset-0 bg-slate-900/50 mix-blend-multiply"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-slate-900/60"></div>
+          <div className="absolute inset-0 bg-slate-900/60 mix-blend-multiply"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-slate-900/70"></div>
         </div>
 
         {/* Hero Content */}
         <div className="relative z-20 max-w-7xl mx-auto px-4 text-center">
             <div className="animate-fade-in-up space-y-8">
                 
-                {/* UADB Logo Integration */}
+                {/* UADB Logo Integration - CORRIGÉ: Badge blanc pour couleurs originales */}
                 <div className="flex justify-center mb-6">
-                    <div className="bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl shadow-2xl border border-white/20 flex items-center gap-4 transform hover:scale-105 transition-transform duration-300">
+                    <div className="bg-white/95 backdrop-blur-md px-6 py-3 rounded-full shadow-2xl border border-white/20 flex items-center gap-4 transform hover:scale-105 transition-transform duration-300">
                         <img 
                             src="https://uadb.edu.sn/images/img-logo-uadb/nouveau-logo-uadb.png" 
                             alt="Logo UADB" 
-                            className="h-12 w-auto object-contain brightness-0 invert"
+                            className="h-12 w-auto object-contain" 
                         />
-                        <div className="h-8 w-px bg-white/30"></div>
+                        <div className="h-8 w-px bg-slate-200"></div>
                         <div className="text-left">
-                            <p className="text-[10px] text-white/80 font-bold uppercase tracking-widest leading-tight">Université de Tutelle</p>
-                            <p className="text-xs text-white font-extrabold tracking-wide">Université Alioune Diop</p>
+                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-tight">Université de Tutelle</p>
+                            <p className="text-xs text-slate-900 font-extrabold tracking-wide">Université Alioune Diop</p>
                         </div>
                     </div>
                 </div>
@@ -80,11 +80,151 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* =========================================
+          NOUVEAU : GUIDE D'ORIENTATION (Integration Clean)
+         ========================================= */}
+      <section className="py-24 bg-white relative z-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              
+              {/* Header Section */}
+              <div className="text-center max-w-3xl mx-auto mb-20">
+                  <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider mb-6">
+                      <HelpCircle size={14} /> Nouveaux Bacheliers
+                  </div>
+                  <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 font-serif">Guide d'Orientation</h2>
+                  <p className="text-lg text-slate-600 leading-relaxed">
+                      Bienvenue à l'Université Alioune Diop de Bambey ! Ce guide vous accompagne dans toutes les étapes de votre orientation et inscription pour une intégration réussie.
+                  </p>
+              </div>
+
+              {/* 1. STEPS PROCESS (Timeline) */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-24 relative">
+                  {/* Connector Line (Desktop) */}
+                  <div className="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-slate-100 -z-10"></div>
+                  
+                  {[
+                      { step: "01", title: "Obtention du Bac", desc: "Réussir avec les mentions compatibles.", icon: Award, color: "bg-blue-600" },
+                      { step: "02", title: "Campusen", desc: "S'inscrire et sélectionner l'UADB.", icon: Globe, color: "bg-amber-500" },
+                      { step: "03", title: "Résultats", desc: "Consulter régulièrement vos choix.", icon: Activity, color: "bg-emerald-500" },
+                      { step: "04", title: "Inscription", desc: "Finaliser l'inscription administrative.", icon: FileCheck, color: "bg-slate-800" }
+                  ].map((item, idx) => (
+                      <div key={idx} className="relative group">
+                          <div className={`w-24 h-24 mx-auto ${item.color} text-white rounded-full flex items-center justify-center text-3xl font-black shadow-xl mb-6 ring-8 ring-white transform group-hover:scale-110 transition-transform`}>
+                              {item.step}
+                          </div>
+                          <div className="text-center px-4">
+                              <h3 className="font-bold text-lg text-slate-900 mb-2">{item.title}</h3>
+                              <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
+                          </div>
+                      </div>
+                  ))}
+              </div>
+
+              {/* 2. CHOIX FORMATION & DOCUMENTS (Grid Layout) */}
+              <div className="grid md:grid-cols-12 gap-12">
+                  
+                  {/* Left: UFR Selection */}
+                  <div className="md:col-span-7 space-y-8">
+                      <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+                          <span className="w-10 h-10 bg-slate-900 text-white rounded-lg flex items-center justify-center"><Zap size={20}/></span>
+                          Quelle UFR choisir ?
+                      </h3>
+                      
+                      {/* SATIC Card */}
+                      <div className="group bg-blue-50 rounded-2xl p-6 border border-blue-100 hover:shadow-md transition-shadow">
+                          <div className="flex justify-between items-start mb-4">
+                              <div>
+                                  <h4 className="font-bold text-blue-900 text-lg">UFR SATIC</h4>
+                                  <p className="text-blue-700/80 text-sm mt-1">Sciences & Technologies</p>
+                              </div>
+                              <div className="bg-white px-3 py-1 rounded text-xs font-bold text-blue-600 uppercase">Bac S requis</div>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                              {['S1','S2','S3','S4','S5'].map(s => (
+                                  <span key={s} className="w-8 h-8 rounded-full bg-white text-blue-600 flex items-center justify-center text-xs font-bold border border-blue-200">{s}</span>
+                              ))}
+                          </div>
+                      </div>
+
+                      {/* SDD Card */}
+                      <div className="group bg-emerald-50 rounded-2xl p-6 border border-emerald-100 hover:shadow-md transition-shadow">
+                          <div className="flex justify-between items-start mb-4">
+                              <div>
+                                  <h4 className="font-bold text-emerald-900 text-lg">UFR SDD</h4>
+                                  <p className="text-emerald-700/80 text-sm mt-1">Santé & Développement Durable</p>
+                              </div>
+                              <div className="bg-white px-3 py-1 rounded text-xs font-bold text-emerald-600 uppercase">Bac S & L</div>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                              {['S1','S2','S3','S4','S5','L'].map(s => (
+                                  <span key={s} className="w-8 h-8 rounded-full bg-white text-emerald-600 flex items-center justify-center text-xs font-bold border border-emerald-200">{s}</span>
+                              ))}
+                          </div>
+                      </div>
+
+                      {/* ECOMIJ Card */}
+                      <div className="group bg-amber-50 rounded-2xl p-6 border border-amber-100 hover:shadow-md transition-shadow">
+                          <div className="flex justify-between items-start mb-4">
+                              <div>
+                                  <h4 className="font-bold text-amber-900 text-lg">UFR ECOMIJ</h4>
+                                  <p className="text-amber-700/80 text-sm mt-1">Économie & Droit</p>
+                              </div>
+                              <div className="bg-white px-3 py-1 rounded text-xs font-bold text-amber-600 uppercase">Bac S, G & L</div>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                              {['S1','S2','G','L'].map(s => (
+                                  <span key={s} className="w-8 h-8 rounded-full bg-white text-amber-600 flex items-center justify-center text-xs font-bold border border-amber-200">{s}</span>
+                              ))}
+                          </div>
+                      </div>
+                  </div>
+
+                  {/* Right: Docs & Info */}
+                  <div className="md:col-span-5">
+                      <div className="bg-slate-900 text-white rounded-3xl p-8 shadow-2xl relative overflow-hidden h-full">
+                          <div className="absolute top-0 right-0 p-8 opacity-10">
+                              <FileCheck size={120} />
+                          </div>
+                          
+                          <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
+                              <FileCheck className="text-amber-400" /> Documents Requis
+                          </h3>
+                          
+                          <ul className="space-y-4 mb-10">
+                              {[
+                                  "Certificat de scolarité / Bulletin 3ème trim.",
+                                  "Copie légalisée de l'acte de naissance",
+                                  "Copie légalisée du baccalauréat",
+                                  "Certificat de nationalité",
+                                  "4 photos d'identité",
+                                  "Frais d'inscription"
+                              ].map((doc, i) => (
+                                  <li key={i} className="flex items-start gap-3 text-sm text-slate-300">
+                                      <CheckCircle2 size={16} className="text-green-400 mt-0.5 flex-shrink-0" />
+                                      {doc}
+                                  </li>
+                              ))}
+                          </ul>
+
+                          <div className="border-t border-slate-700 pt-6 mt-auto">
+                              <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Infos Utiles</h4>
+                              <div className="space-y-2 text-sm font-medium">
+                                  <p className="flex items-center gap-3"><Calendar size={16} className="text-amber-400"/> Inscriptions: Octobre - Novembre</p>
+                                  <p className="flex items-center gap-3"><MousePointer2 size={16} className="text-amber-400"/> scolarite@uadb.edu.sn</p>
+                                  <p className="flex items-center gap-3 text-slate-400 pl-7 text-xs">+221 33 973 30 30</p>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </section>
+
 
       {/* =========================================
           2. UFR SATIC - HYBRID PRESTIGE (Royal Blue & Gold)
          ========================================= */}
-      <section className="py-28 relative bg-white overflow-hidden">
+      <section className="py-28 relative bg-white overflow-hidden border-t border-slate-100">
         {/* Royal Background Elements */}
         <div className="absolute top-0 right-0 w-[50%] h-full bg-blue-50/60 -skew-x-12 translate-x-32 z-0"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-50/60 rounded-full blur-[100px] z-0"></div>
@@ -259,7 +399,7 @@ export const Home: React.FC = () => {
       <section className="py-32 bg-emerald-50 relative overflow-hidden">
         {/* Soft Background Shapes */}
         <div className="absolute -top-32 -right-32 w-[800px] h-[800px] bg-green-200/40 rounded-full blur-[100px] mix-blend-multiply pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-teal-200/40 rounded-full blur-[100px] mix-blend-multiply pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-teal-200/40 rounded-full blur-[80px] mix-blend-multiply pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center max-w-3xl mx-auto mb-20">
